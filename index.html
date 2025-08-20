@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contagem Regressiva - 37 Anos de Formados</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700;900&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            overflow: hidden; /* Evita barras de rolagem por causa do confete */
+        }
+        .font-roboto-mono {
+            font-family: 'Roboto Mono', monospace;
+        }
+        .text-glow {
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.3), 
+                         0 0 20px rgba(255, 215, 0, 0.6);
+        }
+        #countdown-container, #final-message {
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-black text-white flex items-center justify-center h-screen">
+    <!-- Canvas para a animação de confete -->
+    <canvas id="confetti-canvas" class="absolute top-0 left-0 w-full h-full z-0"></canvas>
+
+    <div class="text-center z-10 p-4">
+        <!-- Título Principal -->
+        <h1 class="text-4xl md:text-6xl lg:text-7xl font-black uppercase tracking-wider text-glow">
+            37 Anos de Formados
+        </h1>
+        <p class="text-lg md:text-2xl text-amber-300 mt-2 mb-8 md:mb-12">
+            A contagem regressiva começou!
+        </p>
+
+        <!-- Container da Contagem Regressiva -->
+        <div id="countdown-container">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 max-w-4xl mx-auto">
+                <div class="bg-white/10 p-4 md:p-6 rounded-2xl backdrop-blur-sm border border-white/20">
+                    <div id="days" class="text-5xl md:text-7xl lg:text-8xl font-roboto-mono font-bold text-glow">00</div>
+                    <div class="text-sm md:text-lg uppercase tracking-widest mt-2">Dias</div>
+                </div>
+                <div class="bg-white/10 p-4 md:p-6 rounded-2xl backdrop-blur-sm border border-white/20">
+                    <div id="hours" class="text-5xl md:text-7xl lg:text-8xl font-roboto-mono font-bold text-glow">00</div>
+                    <div class="text-sm md:text-lg uppercase tracking-widest mt-2">Horas</div>
+                </div>
+                <div class="bg-white/10 p-4 md:p-6 rounded-2xl backdrop-blur-sm border border-white/20">
+                    <div id="minutes" class="text-5xl md:text-7xl lg:text-8xl font-roboto-mono font-bold text-glow">00</div>
+                    <div class="text-sm md:text-lg uppercase tracking-widest mt-2">Minutos</div>
+                </div>
+                <div class="bg-white/10 p-4 md:p-6 rounded-2xl backdrop-blur-sm border border-white/20">
+                    <div id="seconds" class="text-5xl md:text-7xl lg:text-8xl font-roboto-mono font-bold text-glow">00</div>
+                    <div class="text-sm md:text-lg uppercase tracking-widest mt-2">Segundos</div>
+                </div>
+            </div>
+             <p class="text-xl md:text-3xl font-bold mt-8 md:mt-12 text-amber-400">
+                Esperamos todos vocês!
+             </p>
+            <!-- Bloco de Endereço Clicável -->
+            <div class="mt-6">
+                <p class="text-lg text-amber-200 mb-2">Dia 23/08 às 18:00</p>
+                <a href="https://maps.app.goo.gl/uCzCK3TqHht3XnnP8?g_st=ipc" target="_blank" rel="noopener noreferrer" 
+                   class="inline-block bg-white/10 p-4 rounded-2xl backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-colors duration-300 max-w-sm mx-auto">
+                    <p class="text-base font-semibold text-white">📍 Local da Festa</p>
+                    <p class="text-sm text-amber-200 mt-1">Residencial Pátio Suíça</p>
+                    <p class="text-sm text-amber-200">Rua C 234 n 1149 - 23° andar</p>
+                </a>
+            </div>
+        </div>
+
+        <!-- Mensagem Final (inicialmente oculta) -->
+        <div id="final-message" class="hidden opacity-0 transform scale-90">
+            <h2 class="text-5xl md:text-8xl font-black text-glow animate-pulse">
+                A FESTA COMEÇOU!
+            </h2>
+            <p class="text-xl md:text-3xl mt-4">
+                Vamos celebrar! 🥳🎉
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // --- CONFIGURAÇÃO DA CONTAGEM REGRESSIVA ---
+        const partyDate = new Date('2025-08-23T18:00:00').getTime();
+
+        const daysEl = document.getElementById('days');
+        const hoursEl = document.getElementById('hours');
+        const minutesEl = document.getElementById('minutes');
+        const secondsEl = document.getElementById('seconds');
+        const countdownContainer = document.getElementById('countdown-container');
+        const finalMessage = document.getElementById('final-message');
+
+        const countdownInterval = setInterval(() => {
+            const now = new Date().getTime();
+            const distance = partyDate - now;
+
+            if (distance < 0) {
+                clearInterval(countdownInterval);
+                showFinalMessage();
+                return;
+            }
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+            const formatTime = (time) => time < 10 ? `0${time}` : time;
+
+            daysEl.innerText = formatTime(days);
+            hoursEl.innerText = formatTime(hours);
+            minutesEl.innerText = formatTime(minutes);
+            secondsEl.innerText = formatTime(seconds);
+        }, 1000);
+
+        function showFinalMessage() {
+            countdownContainer.style.opacity = '0';
+            countdownContainer.style.transform = 'scale(0.9)';
+            
+            setTimeout(() => {
+                countdownContainer.classList.add('hidden');
+                finalMessage.classList.remove('hidden');
+                setTimeout(() => {
+                    finalMessage.style.opacity = '1';
+                    finalMessage.style.transform = 'scale(1)';
+                    startConfetti();
+                }, 50);
+            }, 500);
+        }
+
+        // --- ANIMAÇÃO DE CONFETE ---
+        const canvas = document.getElementById('confetti-canvas');
+        const ctx = canvas.getContext('2d');
+        let confettiParticles = [];
+        const colors = ['#FFD700', '#DAA520', '#F0E68C', '#FFFFFF', '#D4AF37'];
+        
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        function Confetti() {
+            this.x = Math.random() * canvas.width;
+            this.y = Math.random() * canvas.height - canvas.height;
+            this.size = Math.random() * 10 + 5;
+            this.weight = Math.random() * 2 + 1;
+            this.color = colors[Math.floor(Math.random() * colors.length)];
+            this.rotation = Math.random() * 360;
+            this.spin = (Math.random() - 0.5) * 10;
+        }
+
+        function updateConfetti() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            confettiParticles.forEach((p, i) => {
+                p.weight += 0.05;
+                p.y += p.weight;
+                p.x += Math.sin(p.y / 20) * 2;
+                p.rotation += p.spin;
+
+                ctx.save();
+                ctx.fillStyle = p.color;
+                ctx.translate(p.x + p.size / 2, p.y + p.size / 2);
+                ctx.rotate(p.rotation * Math.PI / 180);
+                ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+                ctx.restore();
+
+                if (p.y > canvas.height) {
+                    confettiParticles.splice(i, 1);
+                }
+            });
+
+            if (confettiParticles.length < 200) {
+                 for(let i = 0; i < 2; i++) {
+                    confettiParticles.push(new Confetti());
+                 }
+            }
+            
+            requestAnimationFrame(updateConfetti);
+        }
+
+        function startConfetti() {
+            resizeCanvas();
+            for (let i = 0; i < 100; i++) {
+                confettiParticles.push(new Confetti());
+            }
+            updateConfetti();
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+    </script>
+</body>
+</html>
+
