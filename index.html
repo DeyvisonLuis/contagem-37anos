@@ -17,32 +17,17 @@
             font-family: 'Roboto Mono', monospace;
         }
         .text-glow {
-            /* Sombra de texto com o novo tom dourado */
-            text-shadow: 0 0 8px rgba(255, 255, 255, 0.3), 0 0 20px rgba(255, 215, 0, 0.6);
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.3), 
+                         0 0 20px rgba(255, 215, 0, 0.6);
         }
         #countdown-container, #final-message {
             transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
-        }
-        /* Esconde o player do YouTube */
-        #player {
-            position: absolute;
-            top: -9999px;
-            left: -9999px;
         }
     </style>
 </head>
 <body class="bg-black text-white flex items-center justify-center h-screen">
     <!-- Canvas para a animação de confete -->
     <canvas id="confetti-canvas" class="absolute top-0 left-0 w-full h-full z-0"></canvas>
-
-    <!-- Player do YouTube (escondido) -->
-    <div id="player"></div>
-
-    <!-- Botão de Controle da Música -->
-    <button id="music-toggle" class="absolute top-5 right-5 z-20 bg-white/10 p-3 rounded-full backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-colors">
-        <svg id="music-on-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-amber-300 hidden"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
-        <svg id="music-off-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-amber-300"><line x1="1" y1="1" x2="23" y2="23"></line><path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.91-.91"></path><path d="M11.59 11.59a3.34 3.34 0 0 1-2.59.41"></path><path d="M21 12a9 9 0 0 1-9 9"></path></svg>
-    </button>
 
     <div class="text-center z-10 p-4">
         <!-- Título Principal -->
@@ -75,11 +60,12 @@
             </div>
              <p class="text-xl md:text-3xl font-bold mt-8 md:mt-12 text-amber-400">
                 Esperamos todos vocês!
-            </p>
+             </p>
             <!-- Bloco de Endereço Clicável -->
             <div class="mt-6">
                 <p class="text-lg text-amber-200 mb-2">Dia 23/08 às 18:00</p>
-                <a href="https://maps.app.goo.gl/uCzCK3TqHht3XnnP8?g_st=ipc" target="_blank" rel="noopener noreferrer" class="inline-block bg-white/10 p-4 rounded-2xl backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-colors duration-300 max-w-sm mx-auto">
+                <a href="https://maps.app.goo.gl/uCzCK3TqHht3XnnP8?g_st=ipc" target="_blank" rel="noopener noreferrer" 
+                   class="inline-block bg-white/10 p-4 rounded-2xl backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-colors duration-300 max-w-sm mx-auto">
                     <p class="text-base font-semibold text-white">📍 Local da Festa</p>
                     <p class="text-sm text-amber-200 mt-1">Residencial Pátio Suíça</p>
                     <p class="text-sm text-amber-200">Rua C 234 n 1149 - 23° andar</p>
@@ -146,87 +132,6 @@
             }, 500);
         }
 
-        // --- CONTROLE DA MÚSICA (YOUTUBE API) ---
-        const musicToggle = document.getElementById('music-toggle');
-        const musicOnIcon = document.getElementById('music-on-icon');
-        const musicOffIcon = document.getElementById('music-off-icon');
-        
-        var tag = document.createElement('script');
-        tag.src = "https://www.youtube.com/iframe_api";
-        var firstScriptTag = document.getElementsByTagName('script')[0];
-        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-
-        var player;
-        const videoId = 't5WzApglqMc';
-        const startTime = 95;  // 1 minuto e 35 segundos
-        const endTime = 132;   // 2 minutos e 12 segundos
-        let timeUpdater;
-        let isMusicInitialized = false; // [FIX] Variável para controlar o primeiro clique
-
-        function onYouTubeIframeAPIReady() {
-            player = new YT.Player('player', {
-                height: '1',
-                width: '1',
-                videoId: videoId,
-                playerVars: {
-                    'autoplay': 0, // [FIX] Desativa o autoplay inicial
-                    'controls': 0,
-                    'start': startTime,
-                    'loop': 0,
-                },
-                events: {
-                    'onReady': onPlayerReady,
-                    'onStateChange': onPlayerStateChange
-                }
-            });
-        }
-
-        function onPlayerReady(event) {
-            // O player está pronto, mas espera a interação do usuário.
-            musicOffIcon.classList.remove('hidden'); // Mostra o ícone de som desligado
-            musicOnIcon.classList.add('hidden');
-        }
-
-        function onPlayerStateChange(event) {
-            if (event.data == YT.PlayerState.PLAYING) {
-                timeUpdater = setInterval(checkTime, 250);
-            } else {
-                clearInterval(timeUpdater);
-            }
-        }
-
-        function checkTime() {
-            if (player && typeof player.getCurrentTime === 'function' && player.getCurrentTime() >= endTime) {
-                player.seekTo(startTime, true);
-            }
-        }
-
-        musicToggle.addEventListener('click', () => {
-            if (!player || typeof player.isMuted !== 'function') return;
-
-            // [FIX] Lógica para o primeiro clique
-            if (!isMusicInitialized) {
-                player.playVideo();
-                player.unMute();
-                isMusicInitialized = true;
-                musicOnIcon.classList.remove('hidden');
-                musicOffIcon.classList.add('hidden');
-                return;
-            }
-
-            // Lógica para os cliques seguintes
-            if (player.isMuted()) {
-                player.unMute();
-                musicOnIcon.classList.remove('hidden');
-                musicOffIcon.classList.add('hidden');
-            } else {
-                player.mute();
-                musicOnIcon.classList.add('hidden');
-                musicOffIcon.classList.remove('hidden');
-            }
-        });
-
-
         // --- ANIMAÇÃO DE CONFETE ---
         const canvas = document.getElementById('confetti-canvas');
         const ctx = canvas.getContext('2d');
@@ -290,4 +195,3 @@
     </script>
 </body>
 </html>
-
